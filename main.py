@@ -1,0 +1,18 @@
+from fastapi import FastAPI
+from database.database import Base, engine
+from model.users import User
+from api.users import router as user_router
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title="Mon API Immobilière",
+    description="Gestion des utilisateurs et des biens",
+    version="1.0.0"
+)
+
+app.include_router(user_router)
+
+@app.get("/")
+def read_root():
+    return {"message": "Bienvenue sur l'API Immobilière ! Accédez à /docs pour voir la documentation."}
