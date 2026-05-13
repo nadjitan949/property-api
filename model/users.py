@@ -1,5 +1,5 @@
 from database.database import Base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String, func
 
 class User(Base):
     __tablename__ = "users"
@@ -9,6 +9,8 @@ class User(Base):
     email = Column(String, nullable=True, unique=True)
     phone = Column(String, nullable=True, unique=True)
     password = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
     def __repr__(self):
         return f"<User(username={self.firstname} {self.lastname})>"
