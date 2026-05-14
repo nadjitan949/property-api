@@ -46,6 +46,13 @@ async def login_user(data: Login, db: Session):
 
 async def register_user(data: Register, db: Session):
     try:
+
+        if data.id or data.created_at or data.updated_at:
+            raise HTTPException(
+                status_code=HTTP_STATUS_CODES["BAD_REQUEST"],
+                detail="Les champs id, created_at et updated_at sont gérés automatiquement et ne doivent pas être fournis."
+            )
+
         if not data.email and not data.phone:
             raise HTTPException(
                 status_code=HTTP_STATUS_CODES["BAD_REQUEST"],

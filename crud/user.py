@@ -3,6 +3,9 @@ from fastapi import HTTPException
 from model.users import User
 from schema.users import UserAdd, UserUpdate
 from messages.responses import HTTP_STATUS_CODES
+from passlib.context import CryptContext
+
+psw_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
 
 async def get_all_users(db: Session):
     try:
@@ -78,7 +81,15 @@ async def create_user(data: UserAdd, db: Session):
                     detail="Ce numéro de téléphone appartient déjà à un autre compte"
                 )
 
-        new_user = User(**data.model_dump())
+        user_data = data.model_dump()
+        user_data.pop('password')
+
+        hashed_password = psw_context.hash(data.password)
+
+        new_user = User(
+            password = hashed_password,
+            **user_data
+        )
         
         db.add(new_user)
         db.commit()

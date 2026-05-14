@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 
 class Login(BaseModel):
@@ -8,8 +10,11 @@ class Login(BaseModel):
 
 
 class Register(Login):
+    id: int | None = None
     firstname: str
     lastname: str
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 class AuthStatus(BaseModel):
     model_config = ConfigDict(from_attributes=True)
