@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from database.database import Base, engine
 from model.users import User
 from api.users import router as user_router
+from api.auth import router as auth_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -12,6 +13,7 @@ app = FastAPI(
 )
 
 app.include_router(user_router)
+app.include_router(auth_router)
 
 @app.get("/")
 def read_root():

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from model.users import User
-from schema.users import UserAdd, UserBase, UserUpdate
+from schema.users import UserAdd, UserUpdate
 from messages.responses import HTTP_STATUS_CODES
 
 async def get_all_users(db: Session):
