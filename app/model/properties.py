@@ -28,9 +28,10 @@ class Property(Base):
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True, nullable=False, index=True)
     title = Column(String, nullable=False)
     city = Column(String, nullable=False)
+    description = Column(String, nullable=True)
     address = Column(String, nullable=False)
     property_type = Column(Enum(PropertyType), nullable=False)
-    Transaction_type = Column(Enum(TransactionType), nullable=False)
+    transaction_type = Column(Enum(TransactionType), nullable=False)
     Property_status = Column(Enum(PropertyStatus), nullable=False, default=PropertyStatus.AVAILABLE)
     features = Column(JSONB, nullable=True, default=dict)
 
