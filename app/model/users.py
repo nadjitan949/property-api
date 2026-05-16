@@ -1,5 +1,11 @@
+import enum
 from app.database.database import Base
-from sqlalchemy import Column, DateTime, Integer, String, func
+from sqlalchemy import Column, DateTime, Integer, String, func, Enum
+
+class UserRole(enum.Enum):
+    USER = "user"
+    AGENT = "agent"
+    ADMIN = "admin"
 
 class User(Base):
     __tablename__ = "users"
@@ -8,9 +14,10 @@ class User(Base):
     lastname = Column(String, nullable=False)
     email = Column(String, nullable=True, unique=True)
     phone = Column(String, nullable=True, unique=True)
+    role = Column(Enum(UserRole), nullable=False, default=UserRole.USER)
     password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
     def __repr__(self):
-        return f"<User(username={self.firstname} {self.lastname})>"
+        return f"<User(username={self.firstname} {self.lastname}>"

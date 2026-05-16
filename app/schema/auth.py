@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from app.model.users import UserRole
 
 from pydantic import BaseModel, ConfigDict
 
@@ -14,6 +15,7 @@ class Register(Login):
     id: int | None = None
     firstname: str
     lastname: str
+    role: UserRole | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 

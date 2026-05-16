@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from app.crud import user
-from app.model.users import User
+from app.model.users import User, UserRole
 from app.schema.auth import Login, Register
 from passlib.context import CryptContext
 from app.core.tokens.generate import create_access_token, create_refresh_token
@@ -56,6 +56,13 @@ async def login_user(data: Login, db: Session):
 
 async def register_user(data: Register, db: Session):
     try:
+
+
+        if data.role and data.role == UserRole.ADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Vous n'avez pas les permissions nécessaires pour créer un compte administrateur."
+            )
 
         if data.id or data.created_at or data.updated_at:
             raise HTTPException(

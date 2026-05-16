@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+from app.model.users import UserRole
 
 class UserBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -9,6 +10,7 @@ class UserBase(BaseModel):
     lastname: str
     email: str | None = None
     phone: str | None = None
+    role: UserRole | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
@@ -20,6 +22,7 @@ class UserUpdate(BaseModel):
     lastname: str | None = None
     email: str | None = None
     phone: str | None = None
+    role: UserRole | None = None
 
 
 class ListUsersResponses(BaseModel):
