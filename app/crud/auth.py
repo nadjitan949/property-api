@@ -1,7 +1,6 @@
-from fastapi import HTTPException, responses
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from app.crud import user
-from app.messages.responses import HTTP_STATUS_CODES
 from app.model.users import User
 from app.schema.auth import Login, Register
 from passlib.context import CryptContext
@@ -13,7 +12,10 @@ async def login_user(data: Login, db: Session):
     try:
         if bool(data.email) == bool(data.phone):
             detail = "Fournissez soit un email, soit un téléphone." if not data.email else "Pas les deux en même temps."
-            raise HTTPException(status_code=HTTP_STATUS_CODES["BAD_REQUEST"], detail=detail)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=detail
+                )
         
         if data.email:
             db_user = db.query(User).filter(User.email == data.email).first()
@@ -22,19 +24,19 @@ async def login_user(data: Login, db: Session):
             
         if not db_user or not psw_context.verify(data.password, db_user.password):
             raise HTTPException(
-                status_code=HTTP_STATUS_CODES["UNAUTHORIZED"],
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Email/Téléphone ou mot de passe incorrect"
             )
         
-        access_token = create_access_token({"sub": db_user.id})
-        refres_token = create_refresh_token({"sub": db_user.id})
+        access_token = create_access_token(data={"sub": str(db_user.id)})
+        refresh_token = create_refresh_token(data={"sub": str(db_user.id)})
         
         responses = {
             "success": True,
             "message": "Connexion reussie",
             "tokens": {
                 "access_token": access_token,
-                "refresh_token": refres_token
+                "refresh_token": refresh_token
             },
             "data": db_user
         }
@@ -47,7 +49,7 @@ async def login_user(data: Login, db: Session):
     except Exception as e:
         db.rollback()
         raise HTTPException(
-            status_code=HTTP_STATUS_CODES["INTERNAL_SERVER_ERROR"],
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Une erreur interne est survenue : {str(e)}"
         )
     
@@ -57,27 +59,27 @@ async def register_user(data: Register, db: Session):
 
         if data.id or data.created_at or data.updated_at:
             raise HTTPException(
-                status_code=HTTP_STATUS_CODES["BAD_REQUEST"],
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Les champs id, created_at et updated_at sont gérés automatiquement et ne doivent pas être fournis."
             )
 
         if not data.email and not data.phone:
             raise HTTPException(
-                status_code=HTTP_STATUS_CODES["BAD_REQUEST"],
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Veuillez fournir soit un email, soit un numéro de téléphone pour vous inscrire."
             )
         if data.email:
             db_user = db.query(User).filter(User.email == data.email).first()
             if db_user:
                 raise HTTPException(
-                    status_code=HTTP_STATUS_CODES["CONFLICT"],
+                    status_code=status.HTTP_409_CONFLICT,
                     detail="Cet email est déjà associé à un autre compte"
                 )
         if data.phone:
             db_user = db.query(User).filter(User.phone == data.phone).first()
             if db_user:
                 raise HTTPException(
-                    status_code=HTTP_STATUS_CODES["CONFLICT"],
+                    status_code=status.HTTP_409_CONFLICT,
                     detail="Ce numéro de téléphone appartient déjà à un autre compte"
                 )
             
@@ -105,6 +107,6 @@ async def register_user(data: Register, db: Session):
     except Exception as e:
         db.rollback()
         raise HTTPException(
-            status_code=HTTP_STATUS_CODES["INTERNAL_SERVER_ERROR"],
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Une erreur interne est survenue : {str(e)}"
         )

@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from app.model.users import User
 from app.schema.users import UserAdd, UserUpdate
-from app.messages.responses import HTTP_STATUS_CODES
 from passlib.context import CryptContext
 
 psw_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
@@ -24,7 +23,7 @@ async def get_all_users(db: Session):
     except Exception as e:
         db.rollback()
         raise HTTPException(
-            status_code=HTTP_STATUS_CODES["INTERNAL_SERVER_ERROR"],
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Une erreur interne est survenue : {str(e)}"
         )
     
@@ -34,7 +33,7 @@ async def get_one_user(user_id: int, db: Session):
         db_user = db.query(User).filter(User.id == user_id).first()
         if not db_user:
             raise HTTPException(
-                status_code=HTTP_STATUS_CODES["NOT_FOUND"],
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="Compte introuvable"
             )
         
@@ -51,7 +50,7 @@ async def get_one_user(user_id: int, db: Session):
     except Exception as e:
         db.rollback()
         raise HTTPException(
-            status_code=HTTP_STATUS_CODES["INTERNAL_SERVER_ERROR"],
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Une erreur interne est survenue : {str(e)}"
         )
     
@@ -61,7 +60,7 @@ async def create_user(data: UserAdd, db: Session):
     
         if data.id or data.created_at or data.updated_at:
             raise HTTPException(
-                status_code=HTTP_STATUS_CODES["BAD_REQUEST"],
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail="L'id, created_at et updated_at sont générés automatiquement et ne doivent pas être fournis. Veuillez les omettre ces champs lors de la création d'un compte."
             )
 
@@ -69,7 +68,7 @@ async def create_user(data: UserAdd, db: Session):
             existEmail = db.query(User).filter(User.email == data.email).first()
             if existEmail:
                 raise HTTPException(
-                    status_code=HTTP_STATUS_CODES["CONFLICT"],
+                    status_code=status.HTTP_409_CONFLICT,
                     detail="Cet email est déjà associé à un autre compte"
                 )
             
@@ -77,7 +76,7 @@ async def create_user(data: UserAdd, db: Session):
             existPhone = db.query(User).filter(User.phone == data.phone).first()
             if existPhone:
                 raise HTTPException(
-                    status_code=HTTP_STATUS_CODES["CONFLICT"],
+                    status_code=status.HTTP_409_CONFLICT,
                     detail="Ce numéro de téléphone appartient déjà à un autre compte"
                 )
 
@@ -107,7 +106,7 @@ async def create_user(data: UserAdd, db: Session):
     except Exception as e:
         db.rollback()
         raise HTTPException(
-            status_code=HTTP_STATUS_CODES["INTERNAL_SERVER_ERROR"], 
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             detail=f"Une erreur interne est survenue : {str(e)}"
         )
     
@@ -116,7 +115,7 @@ async def update_user(iuser_d: int, data: UserUpdate, db: Session):
         db_user = db.query(User).filter(User.id == iuser_d).first()
         if not db_user:
             raise HTTPException(
-                status_code=HTTP_STATUS_CODES["NOT_FOUND"],
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="Utilisateur introuvable"
             )
         update_data = data.model_dump(exclude_unset=True)
@@ -136,7 +135,7 @@ async def update_user(iuser_d: int, data: UserUpdate, db: Session):
     
     except Exception as e:
         raise HTTPException(
-            status_code=HTTP_STATUS_CODES["INTERNAL_SERVER_ERROR"], 
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
             detail=f"Une erreur interne est survenue : {str(e)}"
         )
 
@@ -145,7 +144,7 @@ async def delete_user(user_id: int, db: Session):
         db_user = db.query(User).filter(User.id == user_id).first()
         if not db_user:
             raise HTTPException(
-                status_code=HTTP_STATUS_CODES["NOT_FOUND"],
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="Utilisateur introuvable"
             )
         db.delete(db_user)
@@ -163,6 +162,6 @@ async def delete_user(user_id: int, db: Session):
     
     except Exception as e:
         raise HTTPException(
-            status_code=HTTP_STATUS_CODES["INTERNAL_SERVER_ERROR"],
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Use erreur interne est survenu: {str(e)}"
         )
