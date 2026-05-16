@@ -1,6 +1,7 @@
 import enum
 from app.database.database import Base
 from sqlalchemy import Column, DateTime, Integer, String, func, Enum
+from sqlalchemy.orm import relationship
 
 class UserRole(enum.Enum):
     USER = "user"
@@ -18,6 +19,8 @@ class User(Base):
     password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
+
+    properties = relationship("Property", back_populates="owner", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(username={self.firstname} {self.lastname}>"
