@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, status
+from app.model.users import User
 from app.schema.auth import Login, AuthStatus, Register
 from sqlalchemy.orm import Session
 from app.database.database import get_db
-from app.crud.auth import login_user, register_user
+from app.crud.auth import login_user, register_user, me
+from app.core.dependencies.verify import get_current_user
 
 router = APIRouter(
     prefix="/auth",
@@ -16,3 +18,7 @@ async def user_login(data: Login, db: Session = Depends(get_db)):
 @router.post('/sign-up', response_model=AuthStatus, status_code=status.HTTP_200_OK)
 async def user_register(data: Register, db: Session = Depends(get_db)):
     return await register_user(data, db)
+
+@router.get("/me")
+async def my_account(curren_user: User = Depends(get_current_user)):
+    return await me(curren_user)

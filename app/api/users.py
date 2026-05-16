@@ -4,7 +4,7 @@ from app.database.database import get_db
 from app.schema.users import UserAdd, OneUserResponses, ListUsersResponses, UserUpdate
 from app.crud.user import create_user, get_all_users, update_user, delete_user, get_one_user
 from app.model.users import User
-from app.core.dependencies.verify import get_cuurent_user
+from app.core.dependencies.verify import get_current_user
 
 router = APIRouter(
     prefix="/users",
@@ -15,7 +15,7 @@ router = APIRouter(
         '/all',
         response_model=ListUsersResponses,
         status_code=status.HTTP_200_OK,
-        dependencies=[Depends(get_cuurent_user)]
+        dependencies=[Depends(get_current_user)]
         )
 async def read_all_users(db: Session = Depends(get_db)):
     return await get_all_users(db)

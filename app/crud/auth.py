@@ -110,3 +110,19 @@ async def register_user(data: Register, db: Session):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Une erreur interne est survenue : {str(e)}"
         )
+    
+
+async def me(current_user: User):
+    try:
+        responses = {
+            "success": True,
+            "message": "Profil récupéré avec succès",
+            "data": current_user
+        }
+        return responses
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Une erreur est survenue lors de la récupération du profil : {str(e)}"
+        )
