@@ -20,7 +20,7 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
-    properties = relationship("Property", back_populates="owner", cascade="all, delete-orphan")
+    # properties = relationship("Property", back_populates="owner", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(username={self.firstname} {self.lastname}>"

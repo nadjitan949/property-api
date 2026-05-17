@@ -6,7 +6,7 @@ from passlib.context import CryptContext
 
 psw_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
 
-async def get_all_users(db: Session):
+def get_all_users(db: Session):
     try:
         users = db.query(User).all()
         message = ""
@@ -28,7 +28,7 @@ async def get_all_users(db: Session):
         )
     
 
-async def get_one_user(user_id: int, db: Session):
+def get_one_user(user_id: int, db: Session):
     try:
         db_user = db.query(User).filter(User.id == user_id).first()
         if not db_user:
@@ -55,7 +55,7 @@ async def get_one_user(user_id: int, db: Session):
         )
     
 
-async def create_user(data: UserAdd, db: Session):
+def create_user(data: UserAdd, db: Session):
     try:
     
         if data.id or data.created_at or data.updated_at:
@@ -110,7 +110,7 @@ async def create_user(data: UserAdd, db: Session):
             detail=f"Une erreur interne est survenue : {str(e)}"
         )
     
-async def update_user(iuser_d: int, data: UserUpdate, db: Session):
+def update_user(iuser_d: int, data: UserUpdate, db: Session):
     try:
         db_user = db.query(User).filter(User.id == iuser_d).first()
         if not db_user:
@@ -139,7 +139,7 @@ async def update_user(iuser_d: int, data: UserUpdate, db: Session):
             detail=f"Une erreur interne est survenue : {str(e)}"
         )
 
-async def delete_user(user_id: int, db: Session):
+def delete_user(user_id: int, db: Session):
     try:
         db_user = db.query(User).filter(User.id == user_id).first()
         if not db_user:

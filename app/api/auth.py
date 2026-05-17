@@ -12,13 +12,13 @@ router = APIRouter(
 )
 
 @router.post("/sign-in", response_model=AuthStatus, status_code=status.HTTP_200_OK)
-async def user_login(data: Login, db: Session = Depends(get_db)):
-    return await login_user(data, db)
+def user_login(data: Login, db: Session = Depends(get_db)):
+    return login_user(data, db)
 
 @router.post('/sign-up', response_model=AuthStatus, status_code=status.HTTP_200_OK)
-async def user_register(data: Register, db: Session = Depends(get_db)):
-    return await register_user(data, db)
+def user_register(data: Register, db: Session = Depends(get_db)):
+    return register_user(data, db)
 
 @router.get("/me")
-async def my_account(curren_user: User = Depends(get_current_user)):
-    return await me(curren_user)
+def my_account(current_user: User = Depends(get_current_user)):
+    return me(current_user)

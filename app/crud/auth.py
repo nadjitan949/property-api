@@ -8,7 +8,7 @@ from app.core.tokens.generate import create_access_token, create_refresh_token
 
 psw_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
 
-async def login_user(data: Login, db: Session):
+def login_user(data: Login, db: Session):
     try:
         if bool(data.email) == bool(data.phone):
             detail = "Fournissez soit un email, soit un téléphone." if not data.email else "Pas les deux en même temps."
@@ -54,7 +54,7 @@ async def login_user(data: Login, db: Session):
         )
     
 
-async def register_user(data: Register, db: Session):
+def register_user(data: Register, db: Session):
     try:
 
 
@@ -119,7 +119,7 @@ async def register_user(data: Register, db: Session):
         )
     
 
-async def me(current_user: User):
+def me(current_user: User):
     try:
         responses = {
             "success": True,

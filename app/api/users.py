@@ -17,21 +17,21 @@ router = APIRouter(
         status_code=status.HTTP_200_OK,
         dependencies=[Depends(get_current_user)]
         )
-async def read_all_users(db: Session = Depends(get_db)):
-    return await get_all_users(db)
+def read_all_users(db: Session = Depends(get_db)):
+    return get_all_users(db)
 
 @router.get('/details/{user_id}', response_model=OneUserResponses, status_code=status.HTTP_200_OK)
-async def detail_user(user_id: int, db: Session = Depends(get_db)):
-    return await get_one_user(user_id, db)
+def detail_user(user_id: int, db: Session = Depends(get_db)):
+    return get_one_user(user_id, db)
 
 @router.post('/add', response_model=OneUserResponses, status_code=status.HTTP_201_CREATED)
-async def add_user(data: UserAdd, db: Session = Depends(get_db)):
-    return await create_user(data, db)
+def add_user(data: UserAdd, db: Session = Depends(get_db)):
+    return create_user(data, db)
 
 @router.put('/update/{user_id}', response_model=OneUserResponses, status_code=status.HTTP_200_OK)
-async def user_update(user_id: int, data: UserUpdate, db: Session = Depends(get_db)):
-    return await update_user(user_id, data, db)
+def user_update(user_id: int, data: UserUpdate, db: Session = Depends(get_db)):
+    return update_user(user_id, data, db)
 
 @router.delete('/delete/{user_id}', response_model=OneUserResponses, status_code=status.HTTP_200_OK)
-async def user_delete(user_id: int, db: Session = Depends(get_db)):
-    return await delete_user(user_id, db)
+def user_delete(user_id: int, db: Session = Depends(get_db)):
+    return delete_user(user_id, db)
