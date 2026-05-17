@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from fastapi import HTTPException, status
 from app.model.users import User
 from app.schema.users import UserAdd, UserUpdate
@@ -8,7 +8,7 @@ psw_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__trunca
 
 def get_all_users(db: Session):
     try:
-        users = db.query(User).all()
+        users = db.query(User).options(selectinload(User.properties)).all()
         message = ""
         if len(users) == 0:
             message = "Aucun utilisateur enregisté pour le moment"
@@ -30,7 +30,7 @@ def get_all_users(db: Session):
 
 def get_one_user(user_id: int, db: Session):
     try:
-        db_user = db.query(User).filter(User.id == user_id).first()
+        db_user = db.query(User).filter(User.id == user_id).options(selectinload(User.properties)).first()
         if not db_user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

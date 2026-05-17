@@ -1,12 +1,12 @@
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.model.properties import Property
 from app.model.users import User
 from app.schema.properties import PropertyBase, UpdateProperty
 
 def get_all_properties(db: Session):
     try:
-        db_properties = db.query(Property).all()
+        db_properties = db.query(Property).options(joinedload(Property.owner)).all()
         if len(db_properties) == 0:
             message = "Aucun annonce immobilière enregisté pour le moment"
         else:
@@ -28,7 +28,7 @@ def get_all_properties(db: Session):
     
 def get_one_property(property_id: int, db: Session):
     try:
-        db_property = db.query(Property).filter(Property.id == property_id).first()
+        db_property = db.query(Property).filter(Property.id == property_id).options(joinedload(Property.owner)).first()
         if not db_property:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

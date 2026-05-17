@@ -1,10 +1,23 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 from app.model.properties import PropertyType, TransactionType, PeriodeType
+from app.model.users import UserRole
 
 class PropertyFeatures(BaseModel):
     equipements: list[str] = []
     proximite: list[str] = []
+
+class UserInProperty(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int | None = None
+    firstname: str
+    lastname: str
+    email: str | None = None
+    phone: str | None = None
+    role: UserRole | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 class PropertyBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -23,6 +36,7 @@ class PropertyBase(BaseModel):
     owner_id: int
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    owner: UserInProperty | None = None
 
 class UpdateProperty(BaseModel):
     model_config = ConfigDict(from_attributes=True)
