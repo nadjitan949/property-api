@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.database.database import Base, engine
 from app.model.users import User
+from app.model.properties import Property
 from app.api.users import router as user_router
 from app.api.auth import router as auth_router
 
