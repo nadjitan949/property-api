@@ -1,7 +1,7 @@
 import enum
 
 from app.database.database import Base
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Enum, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Enum, Float, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -21,6 +21,12 @@ class PropertyStatus(enum.Enum):
     PENDING = "pending"
     ARCHIVED = "archived"
 
+class PeriodeType(enum.Enum):
+    HOURLY = "hourly"
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "mounthly"
+    YEARLY = "yearly"
 
 class Property(Base):
     __tablename__ = "properties"
@@ -28,6 +34,9 @@ class Property(Base):
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True, nullable=False, index=True)
     title = Column(String, nullable=False)
     city = Column(String, nullable=False)
+    price = Column(Float, nullable=True)
+    periods = Column(Enum(PeriodeType), nullable=True)
+    is_negotiable = Column(Boolean, nullable=False, default=False)
     description = Column(String, nullable=True)
     address = Column(String, nullable=False)
     property_type = Column(Enum(PropertyType), nullable=False)
