@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 from app.model.properties import PropertyType, TransactionType, PeriodeType
 
@@ -20,6 +21,8 @@ class PropertyBase(BaseModel):
     transaction_type: TransactionType
     features: PropertyFeatures | None = None
     owner_id: int
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 class UpdateProperty(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -36,7 +39,14 @@ class UpdateProperty(BaseModel):
     features: PropertyFeatures | None = None
     owner_id: int | None = None
 
-class PropertyResponseModel(BaseModel):
+class AllPropertyResponseModel(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    success: bool
+    message: str
+    data: list[PropertyBase] | None = None
+
+class OnePropertyResponseModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     success: bool

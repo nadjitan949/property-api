@@ -25,7 +25,7 @@ class PeriodeType(enum.Enum):
     HOURLY = "hourly"
     DAILY = "daily"
     WEEKLY = "weekly"
-    MONTHLY = "mounthly"
+    MONTHLY = "monthly"
     YEARLY = "yearly"
 
 class Property(Base):
