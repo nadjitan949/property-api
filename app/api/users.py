@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database.database import get_db
-from app.schema.users import UserAdd, OneUserResponses, ListUsersResponses, UserUpdate
-from app.crud.user import create_user, get_all_users, update_user, delete_user, get_one_user
+from app.schema.users import ResetUserPassword, UserAdd, OneUserResponses, ListUsersResponses, UserUpdate
+from app.crud.user import create_user, get_all_users, reset_user_password, update_user, delete_user, get_one_user
 from app.model.users import User
 from app.core.dependencies.verify import get_current_user
 
@@ -35,3 +35,7 @@ def user_update(user_id: int, data: UserUpdate, db: Session = Depends(get_db)):
 @router.delete('/delete/{user_id}', response_model=OneUserResponses, status_code=status.HTTP_200_OK)
 def user_delete(user_id: int, db: Session = Depends(get_db)):
     return delete_user(user_id, db)
+
+@router.patch('/reset-user-password', response_model=OneUserResponses, status_code=status.HTTP_200_OK)
+def user_password_reset(data: ResetUserPassword, db: Session = Depends(get_db)):
+    return reset_user_password(data, db)

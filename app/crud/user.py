@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session, selectinload
 from fastapi import HTTPException, status
 from app.model.users import User
-from app.schema.users import UserAdd, UserUpdate
+from app.schema.users import UserAdd, UserUpdate, ResetUserPassword
 from passlib.context import CryptContext
 
 psw_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
@@ -104,9 +104,9 @@ def create_user(data: UserAdd, db: Session):
             detail=f"Une erreur interne est survenue : {str(e)}"
         )
     
-def update_user(iuser_d: int, data: UserUpdate, db: Session):
+def update_user(user_id: int, data: UserUpdate, db: Session):
     try:
-        db_user = db.query(User).filter(User.id == iuser_d).first()
+        db_user = db.query(User).filter(User.id == user_id).first()
         if not db_user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -158,4 +158,31 @@ def delete_user(user_id: int, db: Session):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Use erreur interne est survenu: {str(e)}"
+        )
+
+def reset_user_password(data: ResetUserPassword, db: Session):
+    try:
+        db_user = db.query(User).filter(User.id == data.user_id).first()
+        if not db_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Utilisateur introuvable"
+            )
+        hashedPassword = psw_context.hash(data.new_password)
+        db_user.password = hashedPassword
+        db.commit()
+        db.refresh(db_user)
+        responses = {
+            "success": True,
+            "message": "Mot de passe réinitialisé avec succès",
+            "data": db_user
+        }
+        return responses
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Une erreur interne est survenue : {str(e)}"
         )

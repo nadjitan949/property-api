@@ -66,3 +66,9 @@ class OneUserResponses(BaseModel):
     success: bool
     message: str
     data: UserResponses | None = None
+
+class ResetUserPassword(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    user_id: int
+    new_password: str
