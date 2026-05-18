@@ -1,8 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from app.crud import user
 from app.model.users import User, UserRole
-from app.schema.auth import Login, Register
+from app.schema.auth import Login, Register, UpdatePassword
 from passlib.context import CryptContext
 from app.core.tokens.generate import create_access_token, create_refresh_token
 
@@ -126,3 +125,37 @@ def me(current_user: User):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Une erreur est survenue lors de la récupération du profil : {str(e)}"
         )
+    
+def reset_password(current_user: int, data: UpdatePassword, db: Session):
+    try:
+        db_user = db.query(User).filter(User.id == current_user)
+        if not db_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Veuillez vous connecter pour réinitialiser votre mot de passe"
+            )
+        
+        if data.old_password and not psw_context.verify(data.old_password, db_user.first().password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Ancien mot de passe incorrect"
+            )
+        new_hashed_password = psw_context.hash(data.new_password)
+        db_user.update({"password": new_hashed_password})
+        db.commit()
+        db.refresh(db_user.first())
+        responses = {
+            "success": True,
+            "message": "Mot de passe réinitialisé avec succès",
+            "data": db_user.first()
+        }
+        return responses
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Une erreur est survenue lors de la réinitialisation du mot de passe : {str(e)}"
+        )
+        

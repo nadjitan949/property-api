@@ -38,4 +38,8 @@ class AuthStatus(BaseModel):
     message: str
     tokens: Optional[TokenSchema] = None
     data: AuthResponses
+
+class UpdatePassword(BaseModel):
+    old_password: str | None = None
+    new_password: str
     
