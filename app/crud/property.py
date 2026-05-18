@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from app.model.properties import Property
-from app.model.users import User
+from app.model.users import User, UserRole
 from app.schema.properties import PropertyBase, UpdateProperty
 
 def get_all_properties(db: Session):
@@ -60,6 +60,13 @@ def create_property(data: PropertyBase, db: Session):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Propriétaire introuvable"
             )
+        
+        if db_owner.role != UserRole.AGENT:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Seuls les agents peuvent créer des propriétés"
+            )
+
         property_data = Property(**data.model_dump())
         db.add(property_data)
         db.commit()
