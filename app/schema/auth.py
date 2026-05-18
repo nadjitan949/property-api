@@ -12,10 +12,17 @@ class Login(BaseModel):
 
 
 class Register(Login):
-    id: int | None = None
+    model_config = ConfigDict(from_attributes=True)
+    
     firstname: str
     lastname: str
     role: UserRole | None = None
+    
+
+class AuthResponses(Register):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
@@ -26,8 +33,9 @@ class TokenSchema(BaseModel):
 
 class AuthStatus(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
     success: bool
     message: str
     tokens: Optional[TokenSchema] = None
-    data: Register
+    data: AuthResponses
     

@@ -57,17 +57,10 @@ def login_user(data: Login, db: Session):
 def register_user(data: Register, db: Session):
     try:
 
-
         if data.role and data.role == UserRole.ADMIN:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Vous n'avez pas les permissions nécessaires pour créer un compte administrateur."
-            )
-
-        if data.id or data.created_at or data.updated_at:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Les champs id, created_at et updated_at sont gérés automatiquement et ne doivent pas être fournis."
             )
 
         if not data.email and not data.phone:

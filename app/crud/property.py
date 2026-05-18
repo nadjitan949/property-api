@@ -53,11 +53,6 @@ def get_one_property(property_id: int, db: Session):
         )
 def create_property(data: PropertyBase, db: Session):
     try:
-        if data.id or data.created_at or data.updated_at:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Les champs id, created_at et updated_at ne doivent pas être fournis"
-            )
         
         db_owner = db.query(User).filter(User.id == data.owner_id).first()
         if not db_owner:

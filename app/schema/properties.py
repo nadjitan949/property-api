@@ -22,7 +22,6 @@ class UserInProperty(BaseModel):
 class PropertyBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int | None = None
     title: str
     city: str
     address: str
@@ -34,9 +33,6 @@ class PropertyBase(BaseModel):
     transaction_type: TransactionType
     features: PropertyFeatures | None = None
     owner_id: int
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
-    owner: UserInProperty | None = None
 
 class UpdateProperty(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -53,16 +49,24 @@ class UpdateProperty(BaseModel):
     features: PropertyFeatures | None = None
     owner_id: int | None = None
 
+class PropertyResponse(PropertyBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    owner: UserInProperty | None = None
+
 class AllPropertyResponseModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     success: bool
     message: str
-    data: list[PropertyBase] | None = None
+    data: list[PropertyResponse] | None = None
 
 class OnePropertyResponseModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     success: bool
     message: str
-    data: PropertyBase | None = None
+    data: PropertyResponse | None = None

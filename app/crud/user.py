@@ -57,12 +57,6 @@ def get_one_user(user_id: int, db: Session):
 
 def create_user(data: UserAdd, db: Session):
     try:
-    
-        if data.id or data.created_at or data.updated_at:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="L'id, created_at et updated_at sont générés automatiquement et ne doivent pas être fournis. Veuillez les omettre ces champs lors de la création d'un compte."
-            )
 
         if data.email:
             existEmail = db.query(User).filter(User.email == data.email).first()
