@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, status
 from app.model.users import User
-from app.schema.auth import Login, AuthStatus, Register, UpdatePassword
+from app.schema.auth import Login, AuthStatus, Register, UpdatePassword, OtpResponse
 from sqlalchemy.orm import Session
 from app.database.database import get_db
-from app.crud.auth import login_user, register_user, me, reset_password
+from app.crud.auth import login_user, register_user, me, reset_password, forgot_password
 from app.core.dependencies.verify import get_current_user
 
 router = APIRouter(
@@ -31,3 +31,7 @@ def password_reset(
     
 ):
     return reset_password(data=data, current_user=current_user.id, db=db)
+
+@router.post("/forgot-password", response_model=OtpResponse, status_code=status.HTTP_200_OK)
+def password_forgot(data: UpdatePassword, db: Session = Depends(get_db)):
+    return forgot_password(data, db)

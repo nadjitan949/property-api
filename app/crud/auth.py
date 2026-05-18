@@ -1,9 +1,13 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from app.model.users import User, UserRole
+from app.model.otp import Otp, OtpSource
 from app.schema.auth import Login, Register, UpdatePassword
 from passlib.context import CryptContext
 from app.core.tokens.generate import create_access_token, create_refresh_token
+from app.core.secret.otp import generate_otp_code
 
 psw_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
 
@@ -158,4 +162,76 @@ def reset_password(current_user: int, data: UpdatePassword, db: Session):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Une erreur est survenue lors de la réinitialisation du mot de passe : {str(e)}"
         )
+
+def forgot_password(data: UpdatePassword, db: Session):
+    try:
+        if bool(data.email) == bool(data.phone):
+            detail = "Fournissez soit votre email, soit votre téléphone."
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=detail
+                )
         
+        identity = None
+        message = ""
+        expiration = 1
+
+        if data.email:
+            identity = data.email
+            db_user = db.query(User).filter(User.email == data.email).first()
+            if not db_user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Votre adresse email n'est associée à aucun compte"
+                )
+            identity = db_user.email
+            message = f"Un code de réinitialisation a été envoyé à l'adresse {data.email}"
+        elif data.phone:
+            identity = data.phone
+            db_user = db.query(User).filter(User.phone == data.phone).first()
+            if not db_user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Votre numéro de téléphone n'est associé à aucun compte"
+                )
+            identity = db_user.phone
+            message = f"Un code de réinitialisation a été envoyé au numéro {data.phone} expire dans {expiration} min"
+
+        db.query(Otp).filter(
+            Otp.identity.in_([db_user.email, db_user.phone]),
+            Otp.source == OtpSource.FORGOT_PASSWORD
+        ).delete(synchronize_session=False)
+            
+        otpCode = generate_otp_code()
+        hashedOtp = psw_context.hash(otpCode)
+
+        time_to_expire = datetime.now(timezone.utc) + timedelta(minutes=expiration)
+
+        new_otp = Otp(
+            source = OtpSource.FORGOT_PASSWORD,
+            code = hashedOtp,
+            identity = identity,
+            expires_at = time_to_expire
+        )
+
+        db.add(new_otp)
+        db.commit()
+        db.refresh(new_otp)
+            
+        responses = {
+            "success": True,
+            "message": message,
+            "data": otpCode
+        }
+        return responses
+
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Une erreur est survenue lors de la réinitialisation du mot de passe : {str(e)}"
+        )
+        
+

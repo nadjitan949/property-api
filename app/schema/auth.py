@@ -40,6 +40,16 @@ class AuthStatus(BaseModel):
     data: AuthResponses
 
 class UpdatePassword(BaseModel):
+    email: str | None = None
+    phone: str | None = None
     old_password: str | None = None
     new_password: str
+
+class OtpResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    success: bool
+    message: str
+    data: str
+
     
